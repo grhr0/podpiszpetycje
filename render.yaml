@@ -13,14 +13,6 @@ services:
         generateValue: true
       - key: WEB_CONCURRENCY
         value: '2'
-      - key: DATABASE_URL
-        fromDatabase:
-          name: inicjatywa-db
-          property: connectionString
 
-databases:
-  - name: inicjatywa-db
-    databaseName: inicjatywa
-    user: inicjatywa
-    plan: free # Render offers a free tier for Postgres (limited)
+# databases section removed for staging to avoid free tier limits (sqllite fallback)
 
