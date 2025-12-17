@@ -27,6 +27,15 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.urls import re_path
 
+from django.views.static import serve
+
+# Serve media files manually (since we are on a simple monolith deployment without S3)
+urlpatterns += [
+    re_path(r'^signed_pdfs/(?P<path>.*)$', serve, {
+        'document_root': settings.MEDIA_ROOT,
+    }),
+]
+
 # Serve React index.html for any other route
 urlpatterns += [
     re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
