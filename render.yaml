@@ -3,7 +3,7 @@ services:
     name: inicjatywa-uchwalodawcza
     env: python
     buildCommand: ./build.sh
-    startCommand: gunicorn backend.config.wsgi
+    startCommand: cd backend && gunicorn config.wsgi
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
