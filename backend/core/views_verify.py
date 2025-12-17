@@ -7,6 +7,8 @@ from .serializers import SignatorySerializer
 from .services.signature_verifier import verify_signature
 
 class VerifyUploadView(APIView):
+    authentication_classes = []
+    permission_classes = []
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request):

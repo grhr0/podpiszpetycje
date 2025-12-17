@@ -6,6 +6,9 @@ from .serializers import SignatorySerializer, PDFGenerationSerializer
 from .services.pdf_generator import generate_signature_pdf
 
 class GeneratePDFView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    
     def post(self, request):
         serializer = PDFGenerationSerializer(data=request.data)
         if serializer.is_valid():
