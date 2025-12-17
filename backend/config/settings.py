@@ -21,17 +21,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-cc!r$xj*_sh7)vc6rysdfh4omt8m*y!a=j&5h05^ic-9seaa4f')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('SECRET_KEY')
+
+# Fallback for development only
+if not SECRET_KEY:
+    if os.environ.get('DEBUG', 'False') == 'True':
+         SECRET_KEY = 'django-insecure-cc!r$xj*_sh7)vc6rysdfh4omt8m*y!a=j&5h05^ic-9seaa4f'
+    else:
+         # In production, we must have a secret key
+         pass # Or raise error, but for now let's be careful not to break build if env vars not fully loading in some weird context, 
+              # though ideally: raise ImproperlyConfigured("SECRET_KEY must be set in production")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
+# Localhost for dev
+if DEBUG:
+    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1', '[::1]'])
+
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'https://inicjatywa-uchwalodawcza.onrender.com']
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS.extend(['http://localhost:5173', 'http://127.0.0.1:5173'])
 
 
 # Application definition
@@ -60,7 +76,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True  # For development
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True  # For development
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',') if os.environ.get('CORS_ALLOWED_ORIGINS') else []
 
 ROOT_URLCONF = 'config.urls'
 
@@ -154,3 +174,14 @@ MEDIA_ROOT = BASE_DIR / 'signed_pdfs'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/min',
+        'user': '1000/day'
+    }
+}
