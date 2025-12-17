@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { CheckCircle, Download, Loader2 } from 'lucide-react';
 
-const API_URL = 'https://shy-pets-push.loca.lt/api';
+const API_URL = '/api';
 
 export default function Step2Download() {
     const location = useLocation();

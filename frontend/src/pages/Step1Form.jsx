@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 // API base URL - ideally from env
-const API_URL = 'https://shy-pets-push.loca.lt/api';
+const API_URL = '/api';
 
 export default function Step1Form() {
     const navigate = useNavigate();

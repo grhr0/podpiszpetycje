@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { UploadCloud, FileText, CheckCircle, AlertOctagon } from 'lucide-react';
 
-const API_URL = 'https://shy-pets-push.loca.lt/api';
+const API_URL = '/api';
 
 export default function Step4Upload() {
     const navigate = useNavigate();
