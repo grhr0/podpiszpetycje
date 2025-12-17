@@ -28,11 +28,6 @@ urlpatterns = [
     path('', include('core.urls')),
 ]
 
-# Serve media files manually (since we are on a simple monolith deployment without S3)
-
-from django.views.static import serve
-
-# Serve media files manually (since we are on a simple monolith deployment without S3)
 urlpatterns += [
     re_path(r'^signed_pdfs/(?P<path>.*)$', serve, {
         'document_root': settings.MEDIA_ROOT,
