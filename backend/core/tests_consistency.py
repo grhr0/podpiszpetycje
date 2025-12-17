@@ -62,7 +62,8 @@ class DataConsistencyTests(TestCase):
         
         from unittest.mock import patch
         with patch('core.views_verify.verify_signature') as mock_verify:
-            mock_verify.return_value = (True, "Valid", {})
+            # Mock Valid Signature AND Matching Certificate PESEL
+            mock_verify.return_value = (True, "Valid", {"pesel": self.data_a['pesel']})
             
             data = self.data_a.copy()
             pdf_buffer.seek(0)
@@ -71,3 +72,24 @@ class DataConsistencyTests(TestCase):
             
             # Should succeed (created)
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_identity_mismatch(self):
+        """Test upload where PDF Metadata PESEL does NOT match Certificate PESEL."""
+        # Generated for User A
+        pdf_buffer = generate_signature_pdf(self.data_a) 
+        pdf_buffer.seek(0)
+        
+        from unittest.mock import patch
+        with patch('core.views_verify.verify_signature') as mock_verify:
+            # Mock Valid Signature BUT from a different person (User B's PESEL)
+            mock_verify.return_value = (True, "Valid", {"pesel": self.data_b['pesel']})
+            
+            # Form data matches PDF (User A), so basic check passes, but Identity Check should fail
+            data = self.data_a.copy()
+            pdf_buffer.seek(0)
+            
+            response = self.client.post(self.verify_url, {**data, 'file': pdf_buffer}, format='multipart')
+            
+            # Should fail due to Identity Mismatch (Certificate vs Document)
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertIn("Niezgodność tożsamości", str(response.data))

@@ -46,10 +46,38 @@ def verify_signature(pdf_file_obj):
              return False, f"Signature invalid: {status.summary()}", {}
             
         # Extract signer info
+        # Extract signer info
         cert = sig_result.signer_cert
-        subject = cert.subject.human_friendly
         
-        return True, "Valid", {"subject": subject}
+        # Get dictionary of Subject attributes (asn1crypto)
+        subj_dict = cert.subject.native
+        
+        signer_info = {
+            "subject": cert.subject.human_friendly,
+            "common_name": subj_dict.get('common_name'),
+            "serial_number": subj_dict.get('serial_number'),
+            "organization": subj_dict.get('organization_name'),
+            "country": subj_dict.get('country_name')
+        }
+        
+        # Extra extraction of PESEL from Serial Number (Polish Standard: PNOPL-PESEL)
+        pesel = None
+        sn = signer_info.get('serial_number')
+        if sn and isinstance(sn, str) and 'PNOPL-' in sn:
+            try:
+                # Example: PNOPL-90010100000
+                parts = sn.split('PNOPL-')
+                if len(parts) > 1:
+                    raw_pesel = parts[1]
+                    # Simple validation - just digits and length, though regex would be safer
+                    if raw_pesel.isdigit() and len(raw_pesel) == 11:
+                        pesel = raw_pesel
+            except Exception:
+                pass 
+        
+        signer_info['pesel'] = pesel
+        
+        return True, "Valid", signer_info
         
     except Exception as e:
         return False, str(e), {}
