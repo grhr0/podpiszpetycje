@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: inicjatywa-uchwalodawcza
+    env: python
+    buildCommand: ./build.sh
+    startCommand: gunicorn backend.config.wsgi
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: DEBUG
+        value: 'False'
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: '2'
