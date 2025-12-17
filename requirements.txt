@@ -1,0 +1,9 @@
+Django
+djangorestframework
+django-cors-headers
+whitenoise
+gunicorn
+pyhanko
+reportlab
+requests
+psycopg2-binary  # Recommended for production DB on Render

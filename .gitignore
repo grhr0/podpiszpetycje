@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+db.sqlite3
+*.log
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.env
+.DS_Store
+
+# Media (if specific to local dev)
+backend/signed_pdfs/
+backend/staticfiles/
+
+# Editor
+.vscode/
+.idea/
