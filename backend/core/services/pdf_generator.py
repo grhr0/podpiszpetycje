@@ -27,6 +27,12 @@ def generate_signature_pdf(data):
     """
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
+    # Set metadata for integrity check
+    c.setTitle("Wykaz Podpisów")
+    c.setAuthor("Inicjatywa Uchwałodawcza")
+    if 'pesel' in data:
+        c.setSubject(data['pesel']) # Store PESEL in Subject for verification
+    
     width, height = A4
     
     # Header

@@ -5,6 +5,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Signatory
 from .serializers import SignatorySerializer
 from .services.signature_verifier import verify_signature
+from pypdf import PdfReader
 
 class VerifyUploadView(APIView):
     authentication_classes = []
@@ -23,6 +24,30 @@ class VerifyUploadView(APIView):
         if not is_valid:
             # For prototype/dev, we might want a bypass or mock if no signed PDF is available
             return Response({"error": f"Błąd weryfikacji podpisu: {message}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 1.5 Verify Data Consistency (Metadata vs Form Data)
+        try:
+            pdf_file.seek(0)
+            reader = PdfReader(pdf_file)
+            metadata = reader.metadata
+            if metadata and metadata.subject:
+                pdf_pesel = metadata.subject
+                form_pesel = request.data.get('pesel')
+                
+                if pdf_pesel != form_pesel:
+                    return Response({
+                        "error": "Podpisany plik należy do innej osoby (niezgodność PESEL w metadanych pliku)."
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # Optional: Decide if we reject files without metadata (for tighter security)
+                # return Response({"error": "Brak metadanych weryfikacyjnych w pliku."}, status=status.HTTP_400_BAD_REQUEST)
+                pass 
+                
+        except Exception as e:
+            # Don't fail hard if pypdf fails, but log it. Or fail if security is strict.
+            # print(f"Metadata verification failed: {e}")
+            pass
+
 
         # 2. If valid (or if we trust the upload for now), save data.
         # Problem: We need the Form Data (Name, Address, PESEL) to save the Signatory.
