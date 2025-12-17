@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.throttling import AnonRateThrottle
 from django.http import FileResponse
 from .serializers import SignatorySerializer, PDFGenerationSerializer
 from .services.pdf_generator import generate_signature_pdf
@@ -8,6 +9,7 @@ from .services.pdf_generator import generate_signature_pdf
 class GeneratePDFView(APIView):
     authentication_classes = []
     permission_classes = []
+    throttle_classes = [AnonRateThrottle]
     
     def post(self, request):
         serializer = PDFGenerationSerializer(data=request.data)
